@@ -10,6 +10,18 @@ class General_Info(models.Model):
     is_agent: models.BooleanField(default=False)
 
 
+#Non-Agent Users
+
+class Regular_User(models.Model):
+    #preference
+    lot_size_ideal: models.DecimalField(decimal_places=2)
+    room_no_ideal: models.IntegerField
+    floor_no_ideal: models.IntegerField
+    location_ideal: models.IntegerField(max_length=500)
+    price_rent_ideal: models.DecimalField(decimal_places=2)
+    price_full_ideal: models.DecimalField(decimal_places=2)
+
+
 #Real-Estate Agents
 class Agent_User(models.Model):
     description_agent: models.TextField(max_length=10000)
