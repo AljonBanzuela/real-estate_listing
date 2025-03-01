@@ -29,4 +29,3 @@ class Agent_User(models.Model):
     years_of_exp: models.DateTimeField()
     is_available: models.BooleanField(default=True)
 
-#https://docs.google.com/spreadsheets/d/1g5NRadCcwRiSz3KC4VnhUvgXIa8uAVaVUxsbZi-Rfx4/edit?gid=0#gid=0
