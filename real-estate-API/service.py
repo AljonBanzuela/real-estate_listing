@@ -6,6 +6,13 @@ def get_user_list():
     return General_Info.objects.all().order_by("-created_at")
 
 
+def get_user_by_id(pk):
+    try:
+        return General_Info.objects.get(pk=pk)
+    except General_Info.DoesNotExist:
+        return None
+
+
 def create_user(username, password, email_address, location, is_agent=False):
     if General_Info.objects.filter(email_address=email_address).exists():
         raise ValueError('A user with this email address already exists')
@@ -19,9 +26,3 @@ def create_user(username, password, email_address, location, is_agent=False):
 
 
 
-def create_todo(name, description=None, status="pending"):
-    return Todo.objects.create(
-        name=name,
-        description=description,
-        status=status,
-    )
