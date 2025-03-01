@@ -8,6 +8,7 @@ class General_Info(models.Model):
     email_address: models.EmailField(unique=True)
     location: models.CharField(max_length=500)
     is_agent: models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 #Non-Agent Users
