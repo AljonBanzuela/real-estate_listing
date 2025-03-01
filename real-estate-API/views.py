@@ -27,6 +27,3 @@ def user_list_create(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(["GET", "PUT", "PATCH", "DELETE"])
-def user_detail_update
-

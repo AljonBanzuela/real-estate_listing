@@ -24,5 +24,7 @@ def create_user(username, password, email_address, location, is_agent=False):
         is_agent=is_agent,
     )
 
+def update_user_by_id:
 
 
+def delete_user_by_id:
