@@ -10,6 +10,9 @@ class General_Info(models.Model):
     is_agent: models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def set_password(self, param):
+        pass
+
 
 #Non-Agent Users
 

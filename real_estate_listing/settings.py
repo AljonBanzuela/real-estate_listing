@@ -37,8 +37,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework'
-    'real-estate-API'
+    'rest_framework',
+    'real-estate-API',
+    'rest_framework_simplejwt',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +53,12 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'real_estate_listing.urls'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
 TEMPLATES = [
     {
