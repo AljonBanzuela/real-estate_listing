@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'real-estate-API',
+    'real_estate_API',
     'rest_framework_simplejwt',
 ]
 

@@ -21,8 +21,7 @@ def register_view(request):
             username=serializer.validated_data['username'],
             email_address=serializer.validated_data['email_address'],
             location=serializer.validated_data['location'],
-            is_agent=serializer.validated_data['is_agent'],
-            password=serializer.validated_data['password']
+            is_agent=serializer.validated_data['is_agent']
         )
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -43,7 +42,7 @@ def register_view(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except ValueError as e:
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    return Response(serializer.errors, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -89,20 +88,3 @@ def general_info_detail_view(request, pk):
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
-def agent_details_view(request, agentID):
-    general_info = get_user_by_id(agentID)
-    if general_info and general_info.is_agent:
-        # Assuming there are fields for availability and other details
-        return Response({'location': general_info.location, 'availability': general_info.availability},
-                        status=status.HTTP_200_OK)
-    return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-
-@api_view(['GET'])
-def agent_schedule_view(request, agentID):
-    general_info = get_user_by_id(agentID)
-    if general_info and general_info.is_agent:
-        # Assuming there is a schedule field or related model
-        return Response({'schedule': general_info.schedule}, status=status.HTTP_200_OK)
-    return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)

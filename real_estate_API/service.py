@@ -18,13 +18,15 @@ def get_user_by_id(pk):
 def create_user(username, password, email_address, location, is_agent=False):
     if General_Info.objects.filter(email_address=email_address).exists():
         raise ValueError('A user with this email address already exists')
-    return General_Info.objects.create(
+    user = General_Info.objects.create(
         username=username,
-        password=password,
         email_address=email_address,
         location=location,
-        is_agent=is_agent,
+        is_agent=is_agent
     )
+    user.set_password(password)
+    user.save()
+    return user
 
 
 def update_user_by_id(pk, data):

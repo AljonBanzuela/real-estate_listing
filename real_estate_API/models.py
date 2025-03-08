@@ -1,17 +1,18 @@
 from django.db import models
+from django.contrib.auth.hashers import make_password
 
 
 #Authentication
 class General_Info(models.Model):
-    username: models.CharField(max_length=250)
-    password: models.CharField(unique=True)
-    email_address: models.EmailField(unique=True)
-    location: models.CharField(max_length=500)
-    is_agent: models.BooleanField(default=False)
+    username = models.CharField(max_length=250)
+    password = models.CharField(max_length=128, unique=True)
+    email_address = models.EmailField(unique=True)
+    location = models.CharField(max_length=500)
+    is_agent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def set_password(self, param):
-        pass
+    def set_password(self, raw_password):
+        self.password = make_password(raw_password)
 
 
 #Non-Agent Users
@@ -31,4 +32,3 @@ class Agent_User(models.Model):
     description_agent: models.TextField(max_length=10000)
     years_of_exp: models.DateTimeField()
     is_available: models.BooleanField(default=True)
-

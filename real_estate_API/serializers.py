@@ -3,14 +3,16 @@ from .models import General_Info
 
 
 class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
     class Meta:
         model = General_Info
-        field = ['username', 'password', 'email_address', 'location', 'is_agent']
+        fields = ['username', 'password', 'email_address', 'location', 'is_agent', 'created_at']
 
     def create(self, validated_data):
         general_info = General_Info(
             username=validated_data['username'],
-            email=validated_data['email'],
+            email_address=validated_data['email_address'],
             location=validated_data['location'],
             is_agent=validated_data['is_agent']
         )
