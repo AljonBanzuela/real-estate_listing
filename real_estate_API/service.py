@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from .models import General_Info
+from .models import General_Info, Regular_User, Agent_User
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
@@ -54,3 +54,77 @@ def login_user(email, password):
             'access': str(refresh.access_token),
         }
     return general_info
+
+
+def get_user_preference(user_id):
+    try:
+        return Regular_User.objects.get(general_info__id=user_id)
+    except Regular_User.DoesNotExist:
+        return None
+
+
+def create_user_preference(user_id, data):
+    try:
+        user_info = General_Info.objects.get(id=user_id)
+        preference = Regular_User.objects.create(general_info=user_info, **data)
+        preference.save()
+        return preference
+    except General_Info.DoesNotExist:
+        return None
+
+
+def update_user_preference(user_id, data):
+    try:
+        preference = Regular_User.objects.get(general_info__id=user_id)
+        for key, value in data.items():
+            setattr(preference, key, value)
+        preference.save()
+        return preference
+    except Regular_User.DoesNotExist:
+        return None
+
+
+def delete_user_preference(user_id):
+    try:
+        preference = Regular_User.objects.get(general_info__id=user_id)
+        preference.delete()
+        return preference
+    except Regular_User.DoesNotExist:
+        return None
+
+
+def get_agent_details(agent_id):
+    try:
+        return Agent_User.objects.get(general_info__id=agent_id)
+    except Agent_User.DoesNotExist:
+        return None
+
+
+def create_agent_details(agent_id, data):
+    try:
+        agent_info = General_Info.objects.get(id=agent_id)
+        details = Agent_User.objects.create(general_info=agent_info, **data)
+        details.save()
+        return details
+    except General_Info.DoesNotExist:
+        return None
+
+
+def update_agent_details(agent_id, data):
+    try:
+        details = Agent_User.objects.get(general_info__id=agent_id)
+        for key, value in data.items():
+            setattr(details, key, value)
+        details.save()
+        return details
+    except Agent_User.DoesNotExist:
+        return None
+
+
+def delete_agent_details(agent_id):
+    try:
+        details = Agent_User.objects.get(general_info__id=agent_id)
+        details.delete()
+        return details
+    except Agent_User.DoesNotExist:
+        return None
