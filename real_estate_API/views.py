@@ -84,7 +84,7 @@ def general_info_detail_view(request, pk):
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@api_view(['GET'])
 def user_preference_view(request, user_id):
     if request.method == 'GET':
         user_preference = get_user_preference(user_id)
@@ -117,7 +117,7 @@ def user_preference_view(request, user_id):
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+@api_view(['GET'])
 def agent_details_view(request, agent_id):
     if request.method == 'GET':
         agent_details = get_agent_details(agent_id)

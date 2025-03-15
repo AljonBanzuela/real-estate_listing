@@ -31,6 +31,7 @@ class GeneralInfoSerializer(serializers.ModelSerializer):
 
 class RegularUserSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
+    username = serializers.CharField(source='general_info.username', read_only=True)  # Include username
     general_info = GeneralInfoSerializer()
 
     class Meta:
@@ -61,6 +62,7 @@ class RegularUserSerializer(serializers.ModelSerializer):
 
 class AgentUserSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField()
+    username = serializers.CharField(source='general_info.username', read_only=True)  # Include username
     general_info = GeneralInfoSerializer()
 
     class Meta:
