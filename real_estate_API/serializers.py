@@ -88,9 +88,26 @@ class AgentUserSerializer(serializers.ModelSerializer):
         return instance
 
 
+def get_prices(obj):
+    price = obj.prices.last()
+    if price:
+        return {
+            'current_rent_price': price.price_rent,
+            'current_full_price': price.price_full,
+            'upcoming_rent_price': price.price_rent_next,
+            'upcoming_full_price': price.price_full_next,
+        }
+    return None
+
+
+def get_images(obj):
+    return [image.exterior.url for image in obj.images.all() if image.exterior]
+
+
 class PropertySerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField()
+    prices = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     class Meta:
         model = Property_Description
-        fields = '__all__'
+        fields = ['id', 'lot_size', 'room_no', 'floor_no', 'location', 'is_full', 'is_rent', 'prices', 'images']

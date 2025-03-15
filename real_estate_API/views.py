@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import General_Info, Regular_User, Agent_User
-from .serializers import GeneralInfoSerializer, RegularUserSerializer, AgentUserSerializer
+from .models import General_Info, Regular_User, Agent_User, Property_Description, Images, Feedback
+from .serializers import GeneralInfoSerializer, RegularUserSerializer, AgentUserSerializer, PropertySerializer
 from .service import (
     get_user_list,
     get_user_by_id,
@@ -17,7 +17,12 @@ from .service import (
     get_agent_details,
     create_agent_details,
     update_agent_details,
-    delete_agent_details
+    delete_agent_details,
+    get_all_properties,
+    get_property_by_id,
+    create_property,
+    update_property_by_id,
+    delete_property_by_id,
 )
 
 
@@ -148,3 +153,6 @@ def agent_details_view(request, agent_id):
         if agent_details:
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+
+

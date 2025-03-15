@@ -31,7 +31,8 @@ class Regular_User(models.Model):
 
 #Real-Estate Agents
 class Agent_User(models.Model):
-    general_info = models.OneToOneField(General_Info, on_delete=models.CASCADE, related_name='agent_details', default=None)
+    general_info = models.OneToOneField(General_Info, on_delete=models.CASCADE, related_name='agent_details',
+                                        default=None)
     agent_description = models.TextField(default="No description")
     years_of_exp = models.PositiveIntegerField(default="0")
     is_available = models.BooleanField(default=True)
@@ -46,8 +47,14 @@ class Property_Description(models.Model):
     location = models.CharField(max_length=500, default=None)
     is_full = models.BooleanField(default=False)
     is_rent = models.BooleanField(default=False)
+
+
+class Property_Price(models.Model):
+    property_description = models.ForeignKey(Property_Description, related_name='prices', on_delete=models.CASCADE)
     price_rent = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     price_full = models.DecimalField(max_digits=10, decimal_places=2, default=1)
+    price_rent_next = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    price_full_next = models.DecimalField(max_digits=10, decimal_places=2, default=1)
 
 
 class Feedback(models.Model):
