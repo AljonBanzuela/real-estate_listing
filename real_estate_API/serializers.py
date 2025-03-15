@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import General_Info, Regular_User, Agent_User
+from .models import General_Info, Regular_User, Agent_User, Property, Feedback, Images
 
 
 class GeneralInfoSerializer(serializers.ModelSerializer):
