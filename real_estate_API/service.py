@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from .models import General_Info, Regular_User, Agent_User
+from .models import General_Info, Regular_User, Agent_User, Property_Description, Images, Feedback
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 
@@ -128,3 +128,36 @@ def delete_agent_details(agent_id):
         return details
     except Agent_User.DoesNotExist:
         return None
+
+
+def get_all_properties():
+    return Property_Description.objects.all()
+
+
+def get_property_by_id(property_id):
+    try:
+        return Property_Description.objects.get(id=property_id)
+    except Property_Description.DoesNotExist:
+        return None
+
+
+def create_property(data):
+    property_description = Property_Description.objects.create(**data)
+    property_description.save()
+    return property_description
+
+
+def update_property_by_id(property_id, data):
+    property_description = get_property_by_id(property_id)
+    if property_description:
+        for key, value in data.items():
+            setattr(property_description, key, value)
+        property_description.save()
+    return property_description
+
+
+def delete_property_by_id(property_id):
+    property_description = get_property_by_id(property_id)
+    if property_description:
+        property_description.delete()
+    return property_description

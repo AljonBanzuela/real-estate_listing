@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import General_Info, Regular_User, Agent_User, Property, Feedback, Images
+from .models import General_Info, Regular_User, Agent_User, Property_Description, Feedback, Images
 
 
 class GeneralInfoSerializer(serializers.ModelSerializer):
@@ -67,7 +67,7 @@ class AgentUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Agent_User
-        fields = ['id', 'general_info', 'description_agent', 'years_of_exp', 'is_available']
+        fields = ['id', 'general_info', 'agent_description', 'years_of_exp', 'is_available']
 
     def create(self, validated_data):
         general_info_data = validated_data.pop('general_info')
@@ -86,3 +86,11 @@ class AgentUserSerializer(serializers.ModelSerializer):
             general_info_serializer.save()
         instance.save()
         return instance
+
+
+class PropertySerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Property_Description
+        fields = '__all__'
