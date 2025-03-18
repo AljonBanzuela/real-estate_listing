@@ -30,10 +30,10 @@ class Regular_User(models.Model):
 
 #Real-Estate Agents
 class Agent_User(models.Model):
-    general_info = models.OneToOneField(General_Info, on_delete=models.CASCADE, related_name='agent_profile',default=None)
-    agent_description = models.TextField(default="No description")
-    years_of_exp = models.PositiveIntegerField(default="0")
+    general_info = models.OneToOneField(General_Info, on_delete=models.CASCADE, related_name='agent_profile', default=None)
+    agent_description = models.TextField(default="No description provided")
     is_available = models.BooleanField(default=True)
+
     def __str__(self):
         return f"Agent {self.general_info.username}"
 
