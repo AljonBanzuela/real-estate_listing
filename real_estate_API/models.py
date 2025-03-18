@@ -19,8 +19,7 @@ class General_Info(models.Model):
 
 class Regular_User(models.Model):
     #preference
-    general_info = models.OneToOneField(General_Info, on_delete=models.CASCADE, related_name='user_preference',
-                                        default=None)
+    general_info = models.OneToOneField(General_Info, on_delete=models.CASCADE, related_name='user_preference', default=None)
     lot_size_ideal = models.DecimalField(max_digits=10, decimal_places=2, default=1)
     room_no_ideal = models.IntegerField(default=1)
     floor_no_ideal = models.IntegerField(default=1)
@@ -31,16 +30,18 @@ class Regular_User(models.Model):
 
 #Real-Estate Agents
 class Agent_User(models.Model):
-    general_info = models.OneToOneField(General_Info, on_delete=models.CASCADE, related_name='agent_details',
-                                        default=None)
+    general_info = models.OneToOneField(General_Info, on_delete=models.CASCADE, related_name='agent_profile',default=None)
     agent_description = models.TextField(default="No description")
     years_of_exp = models.PositiveIntegerField(default="0")
     is_available = models.BooleanField(default=True)
+    def __str__(self):
+        return f"Agent {self.general_info.username}"
 
 
 #property descriptions
 
 class Property_Description(models.Model):
+    prop_name = models.CharField(max_length=200)
     lot_size = models.DecimalField(max_digits=10, decimal_places=2, default=1)
     room_no = models.IntegerField(default=1)
     floor_no = models.IntegerField(default=1)
@@ -49,6 +50,7 @@ class Property_Description(models.Model):
     is_rent = models.BooleanField(default=False)
 
 
+#Property Price
 class Property_Price(models.Model):
     property_description = models.ForeignKey(Property_Description, related_name='prices', on_delete=models.CASCADE)
     price_rent = models.DecimalField(max_digits=10, decimal_places=2, default=0)
@@ -64,18 +66,7 @@ class Feedback(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Feedback for {self.property.location}"
-
-
-class Images(models.Model):
-    property_description = models.ForeignKey(Property_Description, related_name='images', on_delete=models.CASCADE)
-    exterior = models.ImageField
-
-
-class Request(models.Model):
-    user = models.ForeignKey(General_Info, related_name='requests', on_delete=models.CASCADE)
-    property_description = models.ForeignKey(Property_Description, related_name='requests', on_delete=models.CASCADE)
-    agent = models.ForeignKey(Agent_User, related_name='property_requests', on_delete=models.CASCADE)
+        return f"Feedback for {self.property_description}: {self.comment[:30]}"  # Returns a preview of the comment
     request_date = models.DateTimeField(auto_now_add=True)
     meeting_date = models.DateTimeField(null=True, blank=True)
     status = models.CharField(
@@ -84,5 +75,36 @@ class Request(models.Model):
         default='pending'
     )
 
+
+class Images(models.Model):
+    property_description = models.ForeignKey(
+        Property_Description,
+        related_name='images',
+        on_delete=models.CASCADE
+    )
+    exterior = models.ImageField(upload_to='property_images/exterior/', blank=True, null=True)
+    interior = models.ImageField(upload_to='property_images/interior/', blank=True, null=True)
+
     def __str__(self):
-        return f"Request by {self.user.username} for {self.property.location} with Agent {self.agent.general_info.username}"
+        return f"Images for {self.property_description.prop_name}"
+
+
+class Request(models.Model):
+    user = models.ForeignKey('General_Info', related_name='requests', on_delete=models.CASCADE)
+    property_description = models.ForeignKey('Property_Description', related_name='requests', on_delete=models.CASCADE)
+    agent = models.ForeignKey(
+        'Agent_User', related_name='agent_requests', on_delete=models.CASCADE)
+    request_date = models.DateTimeField(auto_now_add=True)
+    meeting_date = models.DateTimeField(null=True, blank=True)
+    status = models.CharField(
+        max_length=10,
+        choices=[
+            ('pending', 'Pending'),
+            ('approved', 'Approved'),
+            ('declined', 'Declined')
+        ],
+        default='pending'
+    )
+
+    def __str__(self):
+        return f"Request by {self.user.username} for property {self.property_description.prop_name} at {self.property_description.location} with Agent {self.agent.general_info.username}"

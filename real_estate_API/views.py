@@ -155,4 +155,34 @@ def agent_details_view(request, agent_id):
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
+@api_view(['GET'])
+def property_list_view(request):
+    properties = Property_Description.objects.all()
+    serializer = PropertySerializer(properties, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
+
+@api_view(['GET', 'DELETE', 'PATCH'])
+def property_detail_view(request, pk):
+    try:
+        property_description = Property_Description.objects.get(pk=pk)
+    except Property_Description.DoesNotExist:
+        return Response({'detail': 'Property not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    # Handle GET request: Retrieve property details
+    if request.method == 'GET':
+        serializer = PropertySerializer(property_description)
+        return Response(serializer.data)
+
+    # Handle DELETE request: Delete the property
+    elif request.method == 'DELETE':
+        property_description.delete()
+        return Response({'detail': 'Property deleted successfully.'}, status=status.HTTP_204_NO_CONTENT)
+
+    # Handle PATCH request: Update specific fields of the property
+    elif request.method == 'PATCH':
+        serializer = PropertySerializer(property_description, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

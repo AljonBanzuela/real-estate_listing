@@ -22,6 +22,8 @@ class GeneralInfoSerializer(serializers.ModelSerializer):
         return general_info
 
     def update(self, instance, validated_data):
+        if 'password' in validated_data:
+            instance.set_password(validated_data['password'])
         instance.username = validated_data.get('username', instance.username)
         instance.location = validated_data.get('location', instance.location)
         instance.is_agent = validated_data.get('is_agent', instance.is_agent)
@@ -36,7 +38,8 @@ class RegularUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Regular_User
-        fields = ['id', 'general_info', 'lot_size_ideal', 'room_no_ideal', 'floor_no_ideal', 'location_ideal', 'price_rent_ideal', 'price_full_ideal']
+        fields = ['id', 'general_info', 'lot_size_ideal', 'room_no_ideal', 'floor_no_ideal', 'location_ideal',
+                  'price_rent_ideal', 'price_full_ideal']
 
     def create(self, validated_data):
         general_info_data = validated_data.pop('general_info')
@@ -77,13 +80,14 @@ class AgentUserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         general_info_data = validated_data.pop('general_info')
-        instance.description_agent = validated_data.get('description_agent', instance.description_agent)
+        instance.description_agent = validated_data.get('agent_description', instance.description_agent)
         instance.years_of_exp = validated_data.get('years_of_exp', instance.years_of_exp)
         instance.is_available = validated_data.get('is_available', instance.is_available)
-
-        general_info_serializer = GeneralInfoSerializer(instance.general_info, data=general_info_data)
-        if general_info_serializer.is_valid():
-            general_info_serializer.save()
+        general_info_data = validated_data.pop('general_info', None)
+        if general_info_data:
+            general_info_serializer = GeneralInfoSerializer(instance.general_info, data=general_info_data)
+            if general_info_serializer.is_valid():
+                general_info_serializer.save()
         instance.save()
         return instance
 
@@ -104,10 +108,33 @@ def get_images(obj):
     return [image.exterior.url for image in obj.images.all() if image.exterior]
 
 
+class FeedbackSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feedback
+        fields = ['id', 'property_description', 'comment', 'rating', 'created_at']
+
+
 class PropertySerializer(serializers.ModelSerializer):
     prices = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
+    feedbacks = FeedbackSerializer(many=True, read_only=True)
 
     class Meta:
         model = Property_Description
-        fields = ['id', 'lot_size', 'room_no', 'floor_no', 'location', 'is_full', 'is_rent', 'prices', 'images']
+        fields = ['id', 'prop_name', 'lot_size', 'room_no', 'floor_no', 'location', 'is_full', 'is_rent']
+
+    @staticmethod
+    def get_prices(obj):
+        price = obj.prices.last()
+        if price:
+            return {
+                'current_rent_price': price.price_rent,
+                'current_full_price': price.price_full,
+                'upcoming_rent_price': price.price_rent_next,
+                'upcoming_full_price': price.price_full_next,
+            }
+        return None
+
+    @staticmethod
+    def get_images(obj):
+        return [image.exterior.url for image in obj.images.all() if image.exterior]
