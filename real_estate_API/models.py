@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.hashers import make_password
+from datetime import datetime
 
 
 #Authentication
@@ -94,8 +95,8 @@ class Request(models.Model):
     property_description = models.ForeignKey('Property_Description', related_name='requests', on_delete=models.CASCADE)
     agent = models.ForeignKey(
         'Agent_User', related_name='agent_requests', on_delete=models.CASCADE)
-    request_date = models.DateTimeField(auto_now_add=True)
-    meeting_date = models.DateTimeField(null=True, blank=True)
+    request_date = models.DateTimeField(auto_now_add=True, default=datetime.now)
+    meeting_date = models.DateTimeField(null=True, blank=True, default=None)
     status = models.CharField(
         max_length=10,
         choices=[
