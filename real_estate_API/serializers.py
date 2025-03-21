@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import General_Info, Regular_User, Agent_User, Property_Description, Feedback, Images
+from .models import General_Info, Regular_User, Agent_User, Property_Description, Feedback, Images, Property_Price, \
+    PaymentRecord, PropertyNotification
 
 
 class GeneralInfoSerializer(serializers.ModelSerializer):
@@ -80,7 +81,7 @@ class AgentUserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         general_info_data = validated_data.pop('general_info')
-        instance.description_agent = validated_data.get('agent_description', instance.description_agent)
+        instance.agent_description = validated_data.get('agent_description', instance.description_agent)
         instance.years_of_exp = validated_data.get('years_of_exp', instance.years_of_exp)
         instance.is_available = validated_data.get('is_available', instance.is_available)
         general_info_data = validated_data.pop('general_info', None)
@@ -92,22 +93,6 @@ class AgentUserSerializer(serializers.ModelSerializer):
         return instance
 
 
-def get_prices(obj):
-    price = obj.prices.last()
-    if price:
-        return {
-            'current_rent_price': price.price_rent,
-            'current_full_price': price.price_full,
-            'upcoming_rent_price': price.price_rent_next,
-            'upcoming_full_price': price.price_full_next,
-        }
-    return None
-
-
-def get_images(obj):
-    return [image.exterior.url for image in obj.images.all() if image.exterior]
-
-
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
@@ -115,13 +100,14 @@ class FeedbackSerializer(serializers.ModelSerializer):
 
 
 class PropertySerializer(serializers.ModelSerializer):
-    prices = serializers.SerializerMethodField()
-    images = serializers.SerializerMethodField()
-    feedbacks = FeedbackSerializer(many=True, read_only=True)
+    id = serializers.ReadOnlyField()
+    sample_image = serializers.SerializerMethodField()  # Field for the sample image
+    current_price = serializers.SerializerMethodField()
 
     class Meta:
         model = Property_Description
-        fields = ['id', 'prop_name', 'lot_size', 'room_no', 'floor_no', 'location', 'is_full', 'is_rent']
+        fields = ['id', 'prop_name', 'lot_size', 'room_no', 'floor_no', 'location', 'is_full', 'is_rent',
+                  'sample_image', 'current_price']
 
     @staticmethod
     def get_prices(obj):
@@ -136,5 +122,50 @@ class PropertySerializer(serializers.ModelSerializer):
         return None
 
     @staticmethod
-    def get_images(obj):
-        return [image.exterior.url for image in obj.images.all() if image.exterior]
+    def get_sample_image(obj):
+        image = obj.images.first()
+        return image.exterior.url if image and image.exterior else None
+
+    @staticmethod
+    def get_current_price(obj):
+        price = obj.prices.last()
+        if price:
+            if obj.is_full:
+                return price.price_full  # Use full payment price
+            elif obj.is_rent:
+                return price.price_rent  # Use rent price
+        return None
+
+
+class ImagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Images
+        fields = ['exterior', 'interior', 'floor_plan']
+
+
+class PaymentMethodSerializer(serializers.ModelSerializer):
+    rent_duration_months = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Property_Price
+        fields = ['price_rent', 'price_full', 'rent_duration_months']
+
+    @staticmethod
+    def get_rent_duration_months(obj):
+        # Only include rent_duration_months if the property is for rent
+        if obj.property_description.is_rent:
+            return obj.rent_duration_months
+        return None
+
+
+class PaymentRecordSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PaymentRecord
+        fields = ['id', 'amount', 'due_date', 'payment_date', 'status']
+
+
+class PropertyNotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PropertyNotification
+        fields = ['id', 'user', 'property', 'message', 'is_read', 'created_at']
+        depth = 1
