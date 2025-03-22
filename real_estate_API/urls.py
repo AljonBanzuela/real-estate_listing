@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (register_view, login_view, general_info_list_view,
                     general_info_detail_view, user_preference_view, agent_details_view,
                     property_list_view, property_detail_view, property_price_view, property_visuals_view,
-                    property_review_view, property_request_view, property_request_agent_view, property_payment_method_view,
+                    property_review_view, property_request_view, property_request_agent_view,
+                    property_payment_method_view,
                     property_search_view, property_recommendation_view, rent_notification_view, rent_record_view,
                     property_comparison_view, alert_new_deal_view, alert_property_request_approval_view)
 
@@ -28,7 +29,7 @@ urlpatterns = [
     path('properties/<int:property_id>/price/', property_price_view, name='property-price'),
     path('properties/<int:property_id>/visuals/', property_visuals_view, name='property_visuals'),
     path('properties/<int:property_id>/review/', property_review_view, name='property_review'),
-        path('properties/<int:property_id>/payment_method/', property_payment_method_view, name='property_payment_method'),
+    path('properties/<int:property_id>/payment_method/', property_payment_method_view, name='property_payment_method'),
 
     #Property Requests
     path('properties/<int:property_id>/request/', property_request_view, name='property_request'),
@@ -40,8 +41,10 @@ urlpatterns = [
 
     #News
     path('alert/new_deal/<int:property_id>/', alert_new_deal_view, name='alert_new_deal'),
-    path('alert/<int:property_id>/request_approval/', alert_property_request_approval_view, name='alert_property_request_approval'),
+    path('alert/<int:property_id>/request_approval/', alert_property_request_approval_view,
+         name='alert_property_request_approval'),
 
     #Miscellaneous
-    path('property/compare/<int:property_id_1>/<int:property_id_2>/', property_comparison_view, name='property_comparison'),
+    path('properties/compare/<int:property_id_1>/<int:property_id_2>/', property_comparison_view,
+         name='property_comparison'),
 ]

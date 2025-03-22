@@ -40,8 +40,7 @@ class RegularUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Regular_User
         fields = ['id', 'general_info', 'username', 'lot_size_ideal', 'room_no_ideal', 'floor_no_ideal',
-                  'location_ideal',
-                  'price_rent_ideal', 'price_full_ideal']
+                  'location_ideal', 'price_rent_ideal', 'price_full_ideal']
 
     def create(self, validated_data):
         general_info_data = validated_data.pop('general_info')
