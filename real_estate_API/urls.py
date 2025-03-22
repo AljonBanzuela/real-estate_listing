@@ -19,21 +19,20 @@ urlpatterns = [
     path('agent/<int:agent_id>/details/', agent_details_view, name='agent_details'),
 
     # Search, Filtering and Recommendations
-    path('property/search', property_search_view, name='property_search'),
-    path('property/<int:property_id>/recommendation/', property_recommendation_view, name='property_recommendation'),
-
+    path('properties/search', property_search_view, name='property_search'),
+    path('properties/<int:property_id>/recommendation/', property_recommendation_view, name='property_recommendation'),
 
     #Properties
     path('properties/', property_list_view, name='property-list'),
-    path('properties/<property_id>/', property_detail_view, name='property_detail'),
-    path('properties/<property_id>/price/', property_price_view, name='property_price'),
-    path('property/<property_id>/visuals/', property_visuals_view, name='property_visuals'),
-    path('property/<int:property_id>/review/', property_review_view, name='property_review'),
-    path('property/<int:property_id>/payment_method/', property_payment_method_view, name='property_payment_method'),
+    path('properties/<int:pk>/', property_detail_view, name='property_detail'),
+    path('properties/<int:property_id>/price/', property_price_view, name='property-price'),
+    path('properties/<int:property_id>/visuals/', property_visuals_view, name='property_visuals'),
+    path('properties/<int:property_id>/review/', property_review_view, name='property_review'),
+        path('properties/<int:property_id>/payment_method/', property_payment_method_view, name='property_payment_method'),
 
     #Property Requests
-    path('property/<int:property_id>/request/', property_request_view, name='property_request'),
-    path('property/<int:property_id>/request/agent', property_request_agent_view, name='property_request_agent'),
+    path('properties/<int:property_id>/request/', property_request_view, name='property_request'),
+    path('properties/<int:property_id>/request/agent', property_request_agent_view, name='property_request_agent'),
 
     #For Rent
     path('rent/notification/payment/<int:user_id>/', rent_notification_view, name='rent_notification'),

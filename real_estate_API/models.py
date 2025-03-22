@@ -7,7 +7,7 @@ class General_Info(models.Model):
     username = models.CharField(max_length=250)
     password = models.CharField(max_length=128, unique=True)
     email_address = models.EmailField(unique=True)
-    location = models.CharField(max_length=500)
+    location = models.CharField(max_length=500, null=True, blank=True)
     is_agent = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 

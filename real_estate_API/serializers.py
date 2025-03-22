@@ -39,7 +39,8 @@ class RegularUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Regular_User
-        fields = ['id', 'general_info', 'lot_size_ideal', 'room_no_ideal', 'floor_no_ideal', 'location_ideal',
+        fields = ['id', 'general_info', 'username', 'lot_size_ideal', 'room_no_ideal', 'floor_no_ideal',
+                  'location_ideal',
                   'price_rent_ideal', 'price_full_ideal']
 
     def create(self, validated_data):
@@ -96,7 +97,7 @@ class AgentUserSerializer(serializers.ModelSerializer):
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
-        fields = ['id', 'property_description', 'comment', 'rating', 'created_at']
+        fields = ['id', 'comment', 'rating', 'created_at']
 
 
 class PropertySerializer(serializers.ModelSerializer):
@@ -135,6 +136,12 @@ class PropertySerializer(serializers.ModelSerializer):
             elif obj.is_rent:
                 return price.price_rent  # Use rent price
         return None
+
+
+class PropertyPriceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Property_Price
+        fields = ('id', 'price_rent', 'price_full', 'price_rent_next', 'price_full_next')
 
 
 class ImagesSerializer(serializers.ModelSerializer):

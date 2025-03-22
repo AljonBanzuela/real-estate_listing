@@ -3,9 +3,11 @@ from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from django.contrib.auth import authenticate
 from .models import General_Info, Regular_User, Agent_User, Property_Description, Images, Feedback, Property_Price, PropertyNotification
 from .serializers import (GeneralInfoSerializer, RegularUserSerializer, AgentUserSerializer, PropertySerializer,
-                          ImagesSerializer, PaymentMethodSerializer, PaymentRecordSerializer, PropertyNotificationSerializer)
+                          ImagesSerializer, PaymentMethodSerializer, PaymentRecordSerializer, PropertyPriceSerializer,
+                          PropertyNotificationSerializer, FeedbackSerializer)
 from .service import (
     get_user_list,
     get_user_by_id,
@@ -65,15 +67,24 @@ def register_view(request):
 
 @api_view(['POST'])
 def login_view(request):
-    email_address = request.data.get('email_address')
+    username = request.data.get('username')
     password = request.data.get('password')
-    tokens = login_user(email_address, password)
-    if tokens:
-        return Response(tokens, status=status.HTTP_200_OK)
-    return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if not username or not password:
+        return Response({'detail': 'Username and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=username, password=password)
+
+    if user is not None:
+        if user.is_active:
+            return Response({'detail': 'Login successful.'}, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'User account is disabled.'}, status=status.HTTP_403_FORBIDDEN)
+    else:
+        return Response({'detail': 'Invalid username or password.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
-@api_view(['POST'])
+@api_view(['GET'])
 def general_info_list_view(request):
     general_info_list = get_user_list()
     serializer = GeneralInfoSerializer(general_info_list, many=True)
@@ -106,7 +117,7 @@ def general_info_detail_view(request: object, pk: object) -> object:
         return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST', 'PUT', 'DELETE'])
 def user_preference_view(request, user_id):
     if request.method == 'GET':
         user_preference = get_user_preference(user_id)
@@ -220,13 +231,10 @@ def property_detail_view(request, pk):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def property_price_view(request, property_id):
-    try:
-        # Get the property description by ID
+    if request.method == 'GET':
         property_description = Property_Description.objects.get(pk=property_id)
-
-        # Retrieve the latest prices using the related name 'prices'
         price = property_description.prices.last()
         if price:
             return Response({
@@ -235,12 +243,14 @@ def property_price_view(request, property_id):
                 'upcoming_rent_price': price.price_rent_next,
                 'upcoming_full_price': price.price_full_next
             }, status=status.HTTP_200_OK)
-
-        # If no price is available, return a message
         return Response({'detail': 'No price information available.'}, status=status.HTTP_404_NOT_FOUND)
-
-    except Property_Description.DoesNotExist:
-        return Response({'detail': 'Property not found.'}, status=status.HTTP_404_NOT_FOUND)
+    elif request.method == 'POST':
+        property_description = Property_Description.objects.get(pk=property_id)
+        serializer = PropertyPriceSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(property_description=property_description)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])
@@ -258,34 +268,48 @@ def property_visuals_view(request, property_id):
         return Response({'detail': 'Property not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def property_price_view(request, property_id):
     try:
-        property_description = Property_Description.objects.get(pk=property_id)
-        price = property_description.prices.last()
-        if price:
-            return Response({
-                'current_rent_price': price.price_rent,
-                'current_full_price': price.price_full,
-                'upcoming_rent_price': price.price_rent_next,
-                'upcoming_full_price': price.price_full_next
-            }, status=status.HTTP_200_OK)
-        return Response({'detail': 'No price information available.'}, status=status.HTTP_404_NOT_FOUND)
+        if request.method == 'GET':
+            property_description = Property_Description.objects.get(pk=property_id)
+            price = property_description.prices.last()
+            if price:
+                return Response({
+                    'current_rent_price': price.price_rent,
+                    'current_full_price': price.price_full,
+                    'upcoming_rent_price': price.price_rent_next,
+                    'upcoming_full_price': price.price_full_next
+                }, status=status.HTTP_200_OK)
+            return Response({'detail': 'No price information available.'}, status=status.HTTP_404_NOT_FOUND)
+        elif request.method == 'POST':
+            property_description = Property_Description.objects.get(pk=property_id)
+            serializer = PropertyPriceSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save(property_description=property_description)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     except Property_Description.DoesNotExist:
         return Response({'detail': 'Property not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def property_review_view(request, property_id):
-    average_rating = calculate_average_rating(property_id)
-    if average_rating is not None:
-        return Response({
-            'property_id': property_id,
-            'average_rating': average_rating,
-        }, status=status.HTTP_200_OK)
-    return Response({'detail': 'Property not found.'}, status=status.HTTP_404_NOT_FOUND)
+    if request.method == 'GET':
+        average_rating = calculate_average_rating(property_id)
+        if average_rating is not None:
+            return Response({
+                'property_id': property_id,
+                'average_rating': average_rating,
+            }, status=status.HTTP_200_OK)
+        return Response({'detail': 'Property not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-
+    elif request.method == 'POST':
+        serializer = FeedbackSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(property_description_id=property_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 @api_view(['POST'])
 def property_request_view(request, property_id):
     try:
